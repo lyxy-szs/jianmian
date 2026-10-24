@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>我的面试 · 面试搭子</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script src="/shared/theme-init.js"></script>
+    <link rel="stylesheet" href="/styles/base.css" />
+    <script type="module" src="/app/candidate.mjs"></script>
+  </head>
+  <body class="page page-candidate">
+    <header class="site-header">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">面</span> 面试搭子</a>
+      <div class="header-tools">
+        <span id="connection-pill" class="pill pill-muted">连接中…</span>
+        <button class="btn btn-ghost" type="button" data-theme-toggle>☾ 深色</button>
+      </div>
+    </header>
+    <main class="narrow candidate-main">
+      <section id="candidate-root" class="panel candidate-card" aria-live="polite">
+        <p class="muted">正在加载面试信息…</p>
+      </section>
+      <p class="mobile-only-note">手机端仅可查看状态；如需确认“已准备好”，请在电脑端打开本页。</p>
+    </main>
+    <footer class="site-footer">
+      <p>本页面只包含公开信息。内部便签、讨论与评价不会发送到面试人设备。</p>
+    </footer>
+  </body>
+</html>

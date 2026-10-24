@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>面试板 · 面试搭子</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script src="/shared/theme-init.js"></script>
+    <link rel="stylesheet" href="/styles/base.css" />
+    <script type="module" src="/app/board.mjs"></script>
+  </head>
+  <body class="page page-board">
+    <a class="skip-link" href="#board-area">跳到便签墙</a>
+
+    <header class="board-header">
+      <div class="board-head-main">
+        <a class="brand brand-compact" href="/"><span class="brand-mark" aria-hidden="true">面</span><span class="brand-text">面试搭子</span></a>
+        <div class="board-title">
+          <div class="board-title-line">
+            <h1 id="candidate-name">加载中…</h1>
+            <span id="status-chip" class="chip chip-status chip-open">进行中</span>
+            <span id="round-chip" class="chip chip-muted" hidden></span>
+          </div>
+          <p id="candidate-position" class="muted small"></p>
+        </div>
+      </div>
+      <div class="board-head-tools">
+        <div id="presence" class="presence" aria-label="在线状态"></div>
+        <span id="sync-indicator" class="pill pill-muted">连接中…</span>
+        <button id="drafts-button" class="btn btn-ghost btn-small" type="button" hidden>草稿 <span id="drafts-count">0</span></button>
+        <button id="eval-button" class="btn btn-secondary btn-small" type="button">评价</button>
+        <button id="manage-button" class="btn btn-secondary btn-small" type="button" hidden>管理</button>
+        <button id="discussion-toggle" class="btn btn-ghost btn-small discussion-toggle" type="button">讨论</button>
+        <button class="btn btn-ghost btn-small" type="button" data-theme-toggle>☾ 深色</button>
+      </div>
+    </header>
+
+    <div id="readonly-banner" class="readonly-banner" hidden>
+      <strong>本次面试已完成，面试板只读。</strong>
+      <span>主考官可重新开启；当前内容与导出报告保持一致。</span>
+      <a id="report-link" class="btn btn-small btn-secondary" href="#">查看总结</a>
+    </div>
+    <div id="offline-banner" class="offline-banner" hidden></div>
+    <p class="mobile-readonly-hint">手机端仅可查看；如需记录便签、发送讨论或确认结论，请在电脑端打开。</p>
+
+    <main class="board-workspace">
+      <section id="board-area" class="board-area" aria-label="便签墙">
+        <div id="intel-panel" class="intel-panel"></div>
+        <div class="board-toolbar">
+          <div id="filters" class="filter-group" role="group" aria-label="筛选便签">
+            <button class="chip-filter is-active" type="button" data-filter="all">全部</button>
+            <button class="chip-filter" type="button" data-filter="important">★ 重要</button>
+            <button class="chip-filter" type="button" data-filter="discussion">◈ 需要讨论</button>
+          </div>
+          <div class="toolbar-actions">
+            <button id="new-note-button" class="btn btn-primary btn-small" type="button">＋ 新便签</button>
+            <button id="group-manage-button" class="btn btn-ghost btn-small" type="button">分组管理</button>
+          </div>
+        </div>
+        <div id="notes-board" class="notes-board"></div>
+        <div id="board-error" class="empty-state" hidden></div>
+      </section>
+
+      <aside id="discussion-panel" class="discussion-panel" aria-label="考官讨论区">
+        <div class="discussion-head">
+          <div>
+            <h2>考官讨论</h2>
+            <p class="muted small">独立于便签墙；可引用便签、回复消息。</p>
+          </div>
+          <button id="discussion-close" class="btn btn-ghost btn-small" type="button" aria-label="收起讨论区">收起</button>
+        </div>
+        <div id="message-list" class="message-list"></div>
+        <div class="composer">
+          <div id="composer-context" class="composer-context" hidden></div>
+          <label class="sr-only" for="message-input">讨论内容</label>
+          <textarea id="message-input" rows="3" maxlength="2000" placeholder="输入讨论内容…（Ctrl+Enter 发送）"></textarea>
+          <div class="composer-foot">
+            <span id="composer-hint" class="muted small">实时同步给两位考官</span>
+            <button id="send-message" class="btn btn-primary btn-small" type="button">发送</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <dialog id="note-dialog" class="dialog">
+      <form id="note-form" method="dialog" class="dialog-form">
+        <header class="dialog-head">
+          <h2 id="note-dialog-title">新建便签</h2>
+          <button class="btn btn-ghost btn-small" type="button" data-close-dialog>关闭</button>
+        </header>
+        <label class="field">
+          <span>便签正文</span>
+          <textarea id="note-body" rows="5" maxlength="4000" required placeholder="记录你观察到的证据、疑虑或待验证问题…"></textarea>
+        </label>
+        <div class="form-row">
+          <label class="field">
+            <span>放入分组</span>
+            <select id="note-group"></select>
+          </label>
+          <div class="field">
+            <span>标记</span>
+            <div class="check-row">
+              <label class="check"><input type="checkbox" id="note-important" /> ★ 重要</label>
+              <label class="check"><input type="checkbox" id="note-discussion" /> ◈ 需要讨论</label>
+            </div>
+          </div>
+        </div>
+        <p id="note-form-error" class="form-error" hidden></p>
+        <footer class="dialog-actions">
+          <button class="btn btn-ghost" type="button" data-close-dialog>取消</button>
+          <button id="note-save" class="btn btn-primary" type="submit">保存便签</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog id="group-dialog" class="dialog">
+      <div class="dialog-form">
+        <header class="dialog-head">
+          <h2>分组管理</h2>
+          <button class="btn btn-ghost btn-small" type="button" data-close-dialog>关闭</button>
+        </header>
+        <div id="group-list" class="group-manage-list"></div>
+        <form id="group-add-form" class="inline-form">
+          <label class="sr-only" for="group-new-name">新分组名称</label>
+          <input id="group-new-name" maxlength="40" placeholder="新分组名称" required />
+          <button class="btn btn-secondary btn-small" type="submit">添加分组</button>
+        </form>
+        <p class="form-hint">删除分组会先确认，组内便签移入不可删除的“未分类”。</p>
+      </div>
+    </dialog>
+
+    <dialog id="eval-dialog" class="dialog dialog-wide">
+      <div class="dialog-form">
+        <header class="dialog-head">
+          <h2>考官评价</h2>
+          <button class="btn btn-ghost btn-small" type="button" data-close-dialog>关闭</button>
+        </header>
+        <div class="eval-grid">
+          <section class="eval-mine">
+            <div class="eval-head">
+              <h3>我的评价</h3>
+              <span id="my-eval-status" class="chip chip-muted">草稿</span>
+            </div>
+            <label class="field">
+              <span>推荐等级</span>
+              <select id="eval-level">
+                <option value="">请选择</option>
+                <option value="strong_yes">强烈推荐</option>
+                <option value="yes">推荐</option>
+                <option value="hold">待定</option>
+                <option value="no">不推荐</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>理由 <em>提交前必填</em></span>
+              <textarea id="eval-reason" rows="6" maxlength="4000" placeholder="基于便签与讨论，说明你的判断依据…"></textarea>
+            </label>
+            <p id="eval-hint" class="muted small">编辑内容会自动保存草稿；正式提交需要联网并被服务端确认。</p>
+            <p id="eval-error" class="form-error" hidden></p>
+            <div class="eval-actions">
+              <button id="eval-submit" class="btn btn-primary" type="button">正式提交评价</button>
+              <button id="eval-save" class="btn btn-ghost" type="button">立即保存草稿</button>
+            </div>
+          </section>
+          <section class="eval-partner">
+            <div class="eval-head">
+              <h3 id="partner-eval-title">对方评价</h3>
+              <span id="partner-eval-status" class="chip chip-muted">未填写</span>
+            </div>
+            <div id="partner-eval-body" class="partner-eval-body"></div>
+          </section>
+        </div>
+        <div id="eval-final-box" class="eval-final-box" hidden></div>
+      </div>
+    </dialog>
+
+    <dialog id="manage-dialog" class="dialog dialog-wide">
+      <div class="dialog-form">
+        <header class="dialog-head">
+          <h2>主考官管理</h2>
+          <button class="btn btn-ghost btn-small" type="button" data-close-dialog>关闭</button>
+        </header>
+        <div id="manage-content" class="manage-content"></div>
+      </div>
+    </dialog>
+
+    <dialog id="drafts-dialog" class="dialog dialog-wide">
+      <div class="dialog-form">
+        <header class="dialog-head">
+          <h2>本地草稿与未同步内容</h2>
+          <button class="btn btn-ghost btn-small" type="button" data-close-dialog>关闭</button>
+        </header>
+        <p class="muted small">草稿只保存在本浏览器 IndexedDB；可复制到新便签或讨论中再同步。清除浏览器数据会丢失草稿。</p>
+        <div id="drafts-list" class="drafts-list"></div>
+      </div>
+    </dialog>
+
+    <div id="locked-overlay" class="locked-overlay" hidden>
+      <div class="locked-card">
+        <h2>身份已失效</h2>
+        <p id="locked-message">该身份已被撤销或重新邀请，实时推送与队列写入已停止。</p>
+        <p class="muted small">未同步内容已保留为本地草稿；请让主考官发送新的邀请链接。</p>
+        <div class="form-actions">
+          <a class="btn btn-primary" href="/">返回首页</a>
+          <button id="locked-drafts" class="btn btn-ghost" type="button">查看本地草稿</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

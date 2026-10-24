@@ -1,0 +1,17 @@
+{
+  "name": "interview-partner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "面试搭子：双考官实时协作、独立评价与主考官确认的单场面试协作板",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "console": "node src/cli/index.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:watch": "node --test --watch tests/*.test.mjs",
+    "verify:browser": "node scripts/browser-verify.mjs"
+  }
+}

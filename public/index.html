@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>面试搭子 · 创建面试</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script src="/shared/theme-init.js"></script>
+    <link rel="stylesheet" href="/styles/base.css" />
+    <script type="module" src="/app/index.mjs"></script>
+  </head>
+  <body class="page page-home">
+    <header class="site-header">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">面</span> 面试搭子</a>
+      <div class="header-tools">
+        <span class="header-note">单场面试 · 双考官协作</span>
+        <button class="btn btn-ghost" type="button" data-theme-toggle>☾ 深色</button>
+      </div>
+    </header>
+
+    <main class="home">
+      <section class="hero">
+        <p class="eyebrow">Interview Partner</p>
+        <h1>两个人记录，<br />一个结论。</h1>
+        <p class="lede">
+          实时便签墙、独立讨论区、分别评价与主考官确认。为真实面试现场设计：本机服务、SQLite 持久化、三个独立角色链接。
+        </p>
+        <ul class="hero-points">
+          <li><strong>三角色隔离</strong><span>主考官、副考官、面试人各有独立入口，权限在服务端执行。</span></li>
+          <li><strong>实时协作</strong><span>便签、标记与讨论通过 SSE 同步到另一个窗口。</span></li>
+          <li><strong>离线可写</strong><span>断网时先写本机队列，恢复后按 opId 幂等同步。</span></li>
+        </ul>
+      </section>
+
+      <section class="panel create-panel" id="create-panel" aria-labelledby="create-title">
+        <div id="session-banner" class="session-banner" hidden></div>
+        <h2 id="create-title">创建一场面试</h2>
+        <p class="muted">内部资料仅考官可见；公开说明会展示给面试人。</p>
+        <form id="create-form" class="form" novalidate>
+          <div class="form-row">
+            <label>
+              <span>候选人姓名</span>
+              <input name="candidateName" required maxlength="80" autocomplete="off" />
+            </label>
+            <label>
+              <span>应聘岗位</span>
+              <input name="position" required maxlength="120" autocomplete="off" />
+            </label>
+          </div>
+          <label>
+            <span>主考官姓名</span>
+            <input name="leadName" required maxlength="80" autocomplete="off" />
+          </label>
+          <label>
+            <span>候选人简介 <em>内部资料</em></span>
+            <textarea name="internalBrief" rows="3" maxlength="4000" placeholder="面试人不可见"></textarea>
+          </label>
+          <label>
+            <span>本次面试重点 <em>内部资料</em></span>
+            <textarea name="internalFocus" rows="3" maxlength="4000" placeholder="面试人不可见"></textarea>
+          </label>
+          <label>
+            <span>公开面试说明 <em>选填</em></span>
+            <textarea name="publicBrief" rows="2" maxlength="4000" placeholder="会展示给面试人，例如时长、形式、设备提醒"></textarea>
+          </label>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit" id="create-submit">创建空白面试</button>
+            <button class="btn btn-secondary" type="button" id="demo-button">创建示例面试</button>
+          </div>
+          <p class="form-hint">示例使用确定的虚构资料，仍会写入数据库并走真实的领取与审批流程。</p>
+        </form>
+        <div id="created-result" hidden></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>数据保存在本机 <code>data/interview.sqlite</code>；创建后请用不同浏览器窗口或无痕窗口分别打开角色链接。</p>
+    </footer>
+  </body>
+</html>
